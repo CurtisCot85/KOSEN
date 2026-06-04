@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Kosen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  /* ----------------------------------------------------------------
+     color + type tokens. the whole app is built on the logo palette:
+     a near-black ground and a warm cream brushed onto it. one muted
+     gold accent for live/active states. type pairs a high-contrast
+     serif (cormorant) for display with a soft rounded gothic (zen maru)
+     for body and ui — the rounded face echoes the brush-circle logo.
+  ---------------------------------------------------------------- */
+  :root {
+    --ink: #0a0908;
+    --ink-soft: #15120f;
+    --ink-card: #1a1612;
+    --cream: #e9dcc3;
+    --cream-dim: #b3a98f;
+    --cream-faint: #6b6453;
+    --gold: #c8a25c;
+    --line: #2a241c;
+    --serif: 'Cormorant Garamond', Georgia, serif;
+    --body: 'Zen Maru Gothic', system-ui, sans-serif;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html, body {
+    background: var(--ink);
+    color: var(--cream);
+    font-family: var(--body);
+    overscroll-behavior: none;
+  }
+
+  /* subtle paper-grain noise over everything for warmth, so the black
+     reads like sumi ink on a surface rather than a flat screen fill. */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .app {
+    position: relative;
+    z-index: 1;
+    max-width: 480px;
+    margin: 0 auto;
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .screen {
+    display: none;
+    flex-direction: column;
+    flex: 1;
+    padding: 28px 22px calc( 28px + env( safe-area-inset-bottom ) );
+    animation: fade 0.45s ease both;
+  }
+
+  .screen.active {
+    display: flex;
+  }
+
+  @keyframes fade {
+    from { opacity: 0; transform: translateY( 8px ); }
+    to   { opacity: 1; transform: translateY( 0 ); }
+  }
+
+  /* ----------------------------------------------------------------
+     home screen
+  ---------------------------------------------------------------- */
+  #screen_home {
+    justify-content: space-between;
+    text-align: center;
+  }
+
+  .brand {
+    padding-top: 36px;
+  }
+
+  .enso {
+    width: 168px;
+    height: 168px;
+    margin: 0 auto 4px;
+    display: block;
+  }
+
+  .wordmark {
+    font-family: var(--serif);
+    font-size: 2.7rem;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    color: var(--cream);
+    margin-top: 6px;
+  }
+
+  .tagline {
+    font-size: 0.72rem;
+    letter-spacing: 0.42em;
+    text-transform: uppercase;
+    color: var(--cream-faint);
+    margin-top: 10px;
+  }
+
+  .routine_card {
+    background: linear-gradient( 165deg, var(--ink-card), var(--ink-soft) );
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 26px 24px;
+    text-align: left;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .routine_card .kicker {
+    font-size: 0.68rem;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+
+  .routine_card h2 {
+    font-family: var(--serif);
+    font-size: 2.1rem;
+    font-weight: 600;
+    margin: 8px 0 6px;
+    letter-spacing: 0.01em;
+  }
+
+  .routine_card .meta {
+    font-size: 0.9rem;
+    color: var(--cream-dim);
+    line-height: 1.55;
+  }
+
+  .phase_pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-top: 18px;
+  }
+
+  .pill {
+    font-size: 0.66rem;
+    letter-spacing: 0.08em;
+    color: var(--cream-dim);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 5px 11px;
+  }
+
+  /* ----------------------------------------------------------------
+     primary action button — used on home + done screens
+  ---------------------------------------------------------------- */
+  .btn_primary {
+    width: 100%;
+    background: var(--cream);
+    color: var(--ink);
+    border: none;
+    border-radius: 16px;
+    padding: 19px;
+    font-family: var(--body);
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: transform 0.12s ease, opacity 0.12s ease;
+  }
+
+  .btn_primary:active {
+    transform: scale( 0.975 );
+    opacity: 0.9;
+  }
+
+  .home_cta {
+    margin-top: 22px;
+  }
+
+  /* ----------------------------------------------------------------
+     active drill screen
+  ---------------------------------------------------------------- */
+  #screen_active {
+    padding-top: calc( 16px + env( safe-area-inset-top ) );
+  }
+
+  .active_top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+
+  .phase_tag {
+    font-size: 0.66rem;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+
+  .quit {
+    background: none;
+    border: none;
+    color: var(--cream-faint);
+    font-family: var(--body);
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    padding: 6px;
+  }
+
+  /* thin progress bar showing position through the whole routine */
+  .progress_track {
+    height: 3px;
+    background: var(--line);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 22px;
+  }
+
+  .progress_fill {
+    height: 100%;
+    background: var(--gold);
+    width: 0%;
+    transition: width 0.4s ease;
+  }
+
+  .ex_name {
+    font-family: var(--serif);
+    font-size: 2.15rem;
+    font-weight: 600;
+    line-height: 1.1;
+    margin-bottom: 6px;
+  }
+
+  .ex_count {
+    font-size: 0.78rem;
+    letter-spacing: 0.12em;
+    color: var(--cream-faint);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  /* video panel — 16:9 frame holding the youtube iframe. shows a
+     placeholder state when an exercise has no clip id yet. */
+  .video_frame {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: var(--ink-soft);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 18px;
+  }
+
+  .video_frame iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+
+  .video_placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: var(--cream-faint);
+  }
+
+  .video_placeholder .ring {
+    font-size: 1.8rem;
+    opacity: 0.5;
+  }
+
+  .video_placeholder span {
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  .ex_notes {
+    font-size: 0.92rem;
+    line-height: 1.6;
+    color: var(--cream-dim);
+    background: var(--ink-soft);
+    border-left: 2px solid var(--gold);
+    border-radius: 0 10px 10px 0;
+    padding: 13px 16px;
+    margin-bottom: 22px;
+  }
+
+  /* ----------------------------------------------------------------
+     the metric block — either a countdown clock (timed) or a rep
+     target with steppers (reps). only one is visible at a time.
+  ---------------------------------------------------------------- */
+  .metric {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 150px;
+  }
+
+  .timer_value {
+    font-family: var(--serif);
+    font-size: 5.6rem;
+    font-weight: 500;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    color: var(--cream);
+  }
+
+  .timer_value.running {
+    color: var(--gold);
+  }
+
+  .rep_value {
+    font-family: var(--serif);
+    font-size: 5.6rem;
+    font-weight: 500;
+    line-height: 1;
+  }
+
+  .metric_label {
+    font-size: 0.72rem;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: var(--cream-faint);
+    margin-top: 8px;
+  }
+
+  /* stepper row for adjusting duration or reps before/while running */
+  .stepper {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-top: 22px;
+  }
+
+  .step_btn {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    background: var(--ink-card);
+    color: var(--cream);
+    font-size: 1.5rem;
+    font-family: var(--serif);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.12s ease, border-color 0.12s ease;
+  }
+
+  .step_btn:active {
+    transform: scale( 0.9 );
+    border-color: var(--gold);
+  }
+
+  .step_btn:disabled {
+    opacity: 0.3;
+    cursor: default;
+  }
+
+  /* ----------------------------------------------------------------
+     bottom controls — start/pause/done sit fixed at the foot of the
+     active screen so they fall under the thumb on a phone.
+  ---------------------------------------------------------------- */
+  .controls {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+  }
+
+  .ctrl {
+    flex: 1;
+    border-radius: 15px;
+    padding: 18px;
+    font-family: var(--body);
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: transform 0.12s ease, opacity 0.12s ease;
+  }
+
+  .ctrl:active {
+    transform: scale( 0.97 );
+  }
+
+  .ctrl_fill {
+    background: var(--cream);
+    color: var(--ink);
+    border: none;
+    flex: 2;
+  }
+
+  .ctrl_ghost {
+    background: transparent;
+    color: var(--cream-dim);
+    border: 1px solid var(--line);
+  }
+
+  /* ----------------------------------------------------------------
+     done screen
+  ---------------------------------------------------------------- */
+  #screen_done {
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 4px;
+  }
+
+  #screen_done .enso {
+    width: 132px;
+    height: 132px;
+  }
+
+  #screen_done h2 {
+    font-family: var(--serif);
+    font-size: 2.6rem;
+    font-weight: 600;
+    margin-top: 8px;
+  }
+
+  #screen_done p {
+    color: var(--cream-dim);
+    font-size: 0.95rem;
+    margin: 8px 0 36px;
+    letter-spacing: 0.04em;
+  }
+
+  #screen_done .btn_primary {
+    max-width: 280px;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ============================================================
+       home screen
+  ============================================================ -->
+  <section id="screen_home" class="screen active">
+    <div class="brand">
+      <svg class="enso" viewBox="0 0 100 100" aria-hidden="true">
+        <path d="M50 12 C25 12 14 32 14 50 C14 70 28 88 50 88 C70 88 86 73 86 52 C86 34 74 20 58 18"
+              fill="none" stroke="#e9dcc3" stroke-width="5.5" stroke-linecap="round"
+              stroke-dasharray="0.5 7" opacity="0.92"/>
+        <path d="M50 13 C26 13 15 33 15 50 C15 69 29 87 50 87 C69 87 85 72 85 52"
+              fill="none" stroke="#e9dcc3" stroke-width="8" stroke-linecap="round" opacity="0.85"/>
+      </svg>
+      <div class="wordmark">Kosen</div>
+      <div class="tagline">solo drilling</div>
+    </div>
+
+    <div class="routine_card">
+      <div class="kicker">Today's session</div>
+      <h2>Primary Routine</h2>
+      <div class="meta">25–30 min · full session<br>mobility · bottom · top · neck · cool down</div>
+      <div class="phase_pills">
+        <span class="pill">8 mobility</span>
+        <span class="pill">8 bottom</span>
+        <span class="pill">9 top</span>
+        <span class="pill">2 neck</span>
+        <span class="pill">3 cool down</span>
+      </div>
+    </div>
+
+    <button class="btn_primary home_cta" onclick="start_routine()">Begin</button>
+  </section>
+
+  <!-- ============================================================
+       active drill screen
+  ============================================================ -->
+  <section id="screen_active" class="screen">
+    <div class="active_top">
+      <span class="phase_tag" id="phase_tag">mobility</span>
+      <button class="quit" onclick="quit_routine()">End</button>
+    </div>
+
+    <div class="progress_track"><div class="progress_fill" id="progress_fill"></div></div>
+
+    <div class="ex_name" id="ex_name">—</div>
+    <div class="ex_count" id="ex_count">exercise 1 of 30</div>
+
+    <div class="video_frame" id="video_frame"></div>
+
+    <div class="ex_notes" id="ex_notes"></div>
+
+    <!-- metric block: timer OR reps, swapped per exercise type -->
+    <div class="metric">
+      <!-- timed view -->
+      <div id="timed_view" style="display:none; text-align:center;">
+        <div class="timer_value" id="timer_value">0:60</div>
+        <div class="metric_label">seconds</div>
+        <div class="stepper">
+          <button class="step_btn" id="time_minus" onclick="adjust_time( -15 )">–</button>
+          <button class="step_btn" id="time_plus" onclick="adjust_time( 15 )">+</button>
+        </div>
+      </div>
+
+      <!-- reps view -->
+      <div id="reps_view" style="display:none; text-align:center;">
+        <div class="rep_value" id="rep_value">20</div>
+        <div class="metric_label" id="rep_label">reps</div>
+        <div class="stepper">
+          <button class="step_btn" onclick="adjust_reps( -1 )">–</button>
+          <button class="step_btn" onclick="adjust_reps( 1 )">+</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="controls" id="controls"></div>
+  </section>
+
+  <!-- ============================================================
+       done screen
+  ============================================================ -->
+  <section id="screen_done" class="screen">
+    <svg class="enso" viewBox="0 0 100 100" aria-hidden="true">
+      <path d="M50 13 C26 13 15 33 15 50 C15 69 29 87 50 87 C69 87 85 72 85 52"
+            fill="none" stroke="#c8a25c" stroke-width="8" stroke-linecap="round" opacity="0.9"/>
+    </svg>
+    <h2>Session complete</h2>
+    <p>nice work. the circle closes.</p>
+    <button class="btn_primary" onclick="go_home()">Done</button>
+  </section>
+
+</div>
+
+<script>
+  /* ================================================================
+     exercise data — the full primary routine from the spec, encoded
+     as a flat ordered list. each entry carries everything the engine
+     needs to render and run one step:
+
+       phase     which block it belongs to (drives the phase tag)
+       name      display name
+       type      'timed' = countdown clock, 'reps' = manual target
+       default   starting seconds (timed) or rep count (reps)
+       label     unit shown under the big number ('reps', 'each side'...)
+       notes     the form cue from the spec
+       video     youtube id for the form clip, '' = placeholder for now
+
+     per-side / per-direction drills are kept as a single step here;
+     the label tells you to switch sides yourself. this matches the
+     v1 decision — we can split the timed ones into two steps later
+     without disturbing anything else.
+  ================================================================ */
+  let routine = [
+
+    // ---- phase 1: mobility warmup ----
+    { phase: 'mobility', name: 'Neck circles & rotations', type: 'reps',  default: 10, label: 'circles each way', notes: 'chin to chest, ear to shoulder each side, look over shoulder each side. 5 sec holds.', video: '' },
+    { phase: 'mobility', name: 'Cat-cow on toes',          type: 'reps',  default: 10, label: 'cycles',           notes: 'hands and toes, not knees. slow and controlled.', video: '' },
+    { phase: 'mobility', name: 'Floor angels',             type: 'reps',  default: 10, label: 'reps',             notes: 'arms in goal post, maintain mat contact through full range.', video: '' },
+    { phase: 'mobility', name: 'Kettlebell halo',          type: 'reps',  default: 5,  label: 'circles each way', notes: 'light bell, held by horns at chest level.', video: '' },
+    { phase: 'mobility', name: 'Thread the needle',        type: 'reps',  default: 5,  label: 'each side',        notes: 'from hands and toes, reach arm under and through.', video: '' },
+    { phase: 'mobility', name: 'Kettlebell arm bar',       type: 'timed', default: 30, label: 'each side',        notes: 'light bell, roll onto side keeping bell at ceiling.', video: '' },
+    { phase: 'mobility', name: 'Sleeper stretch',          type: 'timed', default: 30, label: 'each side',        notes: 'lie on side, gently push bottom forearm toward mat.', video: '' },
+    { phase: 'mobility', name: 'Lying spinal twist',       type: 'timed', default: 30, label: 'each side',        notes: 'knees bent, drop to side, shoulders stay flat.', video: '' },
+
+    // ---- phase 2: bottom position ----
+    { phase: 'bottom', name: 'Shrimping in place',  type: 'reps',  default: 10, label: 'each direction', notes: 'shrimp one way, immediately shrimp back.', video: '' },
+    { phase: 'bottom', name: 'Bridging',            type: 'reps',  default: 20, label: 'reps',           notes: 'hold 3–5 sec at top.', video: '' },
+    { phase: 'bottom', name: 'Single-leg bridge',   type: 'reps',  default: 10, label: 'each leg',       notes: 'one foot planted, other leg extended.', video: '' },
+    { phase: 'bottom', name: 'Hip escape to guard', type: 'reps',  default: 10, label: 'each side',      notes: 'bridge, shrimp out, recover guard, reset.', video: '' },
+    { phase: 'bottom', name: 'Leg circles & bicycle', type: 'timed', default: 30, label: 'circles, then bicycle', notes: 'on back, legs in air. 30 sec circles, 30 sec bicycle.', video: '' },
+    { phase: 'bottom', name: 'Sidewinders',         type: 'timed', default: 30, label: 'seconds',        notes: 'counter-rotating shoulders and hips.', video: '' },
+    { phase: 'bottom', name: 'Granby rolls',        type: 'reps',  default: 5,  label: 'each direction', notes: 'seated, roll over shoulder, back to seated.', video: '' },
+    { phase: 'bottom', name: 'Technical standup',   type: 'reps',  default: 5,  label: 'each side',      notes: 'post hand, kick leg through, stand.', video: '' },
+
+    // ---- phase 3: top position / dynamic strength ----
+    { phase: 'top', name: 'Standard plank',                type: 'timed', default: 60, label: 'seconds',        notes: 'toes and forearms, hips level.', video: '' },
+    { phase: 'top', name: 'Hip switches from plank',       type: 'reps',  default: 10, label: 'each direction', notes: 'rotate hips side to side driving angled pressure.', video: '' },
+    { phase: 'top', name: 'Plank-to-side-plank',           type: 'reps',  default: 10, label: 'full rotations', notes: 'continuous and fluid, don\u2019t pause at each position.', video: '' },
+    { phase: 'top', name: 'Toe-walking plank',             type: 'reps',  default: 10, label: 'steps each way', notes: 'walk feet in circle around planted hands.', video: '' },
+    { phase: 'top', name: 'Plank-to-sprawl',               type: 'reps',  default: 10, label: 'reps',           notes: 'explosive hip drive forward and down, return to plank.', video: '' },
+    { phase: 'top', name: 'Bear crawl',                    type: 'timed', default: 30, label: 'seconds',        notes: 'hands and toes, hips low, two steps forward and back.', video: '' },
+    { phase: 'top', name: 'Crab walk',                     type: 'timed', default: 30, label: 'seconds',        notes: 'face up, hands and feet, hips off mat.', video: '' },
+    { phase: 'top', name: 'Sprawl-to-side-drive',          type: 'reps',  default: 5,  label: 'each side',      notes: 'sprawl, drive hips laterally toward side control.', video: '' },
+    { phase: 'top', name: 'Alligator walk',                type: 'timed', default: 30, label: 'seconds',        notes: 'pull with forearms, push with toes, chest low.', video: '' },
+
+    // ---- phase 4: neck strength ----
+    { phase: 'neck', name: 'Prone neck extensions', type: 'reps',  default: 10, label: 'reps',    notes: 'face down, hands behind head, lift head and chest. 3–5 sec holds.', video: '' },
+    { phase: 'neck', name: 'Neck bridges',          type: 'timed', default: 30, label: 'seconds', notes: 'cautious. small range of motion, light bodyweight only.', video: '' },
+
+    // ---- phase 5: cool down ----
+    { phase: 'cool down', name: 'Child\u2019s pose on toes', type: 'timed', default: 30, label: 'seconds',   notes: 'sit hips back, arms extended, on toes not shins.', video: '' },
+    { phase: 'cool down', name: 'Lying spinal twist',        type: 'timed', default: 30, label: 'each side',  notes: 'repeat from warmup.', video: '' },
+    { phase: 'cool down', name: 'Dead hang',                 type: 'timed', default: 30, label: 'seconds',   notes: 'if pull-up bar available. skip if not.', video: '' }
+  ];
+
+  /* ================================================================
+     engine state. these few variables are the whole machine:
+
+       current      index of the exercise we're on
+       work_state   per-exercise live values (current seconds / reps)
+       tick         the setInterval handle for a running countdown,
+                    null when nothing is counting. think of it as the
+                    clutch — engaged while the clock turns, disengaged
+                    otherwise.
+  ================================================================ */
+  let current = 0;
+  let work_seconds = 0;
+  let work_reps = 0;
+  let tick = null;
+
+  /* ----------------------------------------------------------------
+     audio chime. instead of hosting a sound file we synthesize a
+     short bell with the web audio api — a single oscillator whose
+     volume is plucked then allowed to ring down, like striking a
+     gym bell. one ctx is reused for the life of the page.
+  ---------------------------------------------------------------- */
+  let audio_ctx = null;
+
+  function get_ctx() {
+    if ( audio_ctx === null ) {
+      audio_ctx = new ( window.AudioContext || window.webkitAudioContext )();
+    }
+    return audio_ctx;
+  }
+
+  function chime() {
+    let ctx = get_ctx();
+    let now = ctx.currentTime;
+
+    // two stacked tones an octave-ish apart give it a fuller 'bell'
+    // body than a single sine. each gets its own gain envelope.
+    let freqs = [ 880 , 1320 ];
+    let i = 0;
+    for ( i = 0; i < freqs.length; i++ ) {
+      let osc = ctx.createOscillator();
+      let gain = ctx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.value = freqs[ i ];
+
+      gain.gain.setValueAtTime( 0.0001 , now );
+      gain.gain.exponentialRampToValueAtTime( 0.4 , now + 0.01 );    // quick strike
+      gain.gain.exponentialRampToValueAtTime( 0.0001 , now + 1.1 );  // ring down
+
+      osc.connect( gain );
+      gain.connect( ctx.destination );
+
+      osc.start( now );
+      osc.stop( now + 1.2 );
+    }
+  }
+
+  /* ================================================================
+     screen switching. three sections, only one carries the .active
+     class at a time. plain show/hide — no router needed for v1.
+  ================================================================ */
+  function show_screen( id ) {
+    let screens = document.querySelectorAll( '.screen' );
+    let i = 0;
+    for ( i = 0; i < screens.length; i++ ) {
+      screens[ i ].classList.remove( 'active' );
+    }
+    document.getElementById( id ).classList.add( 'active' );
+  }
+
+  /* ================================================================
+     start / quit / finish
+  ================================================================ */
+  function start_routine() {
+    // unlock audio inside this user tap. browsers keep the audio
+    // context suspended until a real interaction — this resume call
+    // is the key turning in the ignition so later chimes can fire.
+    get_ctx().resume();
+
+    current = 0;
+    show_screen( 'screen_active' );
+    load_exercise();
+  }
+
+  function quit_routine() {
+    stop_tick();
+    go_home();
+  }
+
+  function go_home() {
+    stop_tick();
+    show_screen( 'screen_home' );
+  }
+
+  function finish_routine() {
+    stop_tick();
+    show_screen( 'screen_done' );
+  }
+
+  /* ================================================================
+     load one exercise into the screen. this is the big render step:
+     it reads routine[ current ], fills the name / notes / video, sets
+     up the correct metric view, and builds the right control buttons
+     for the exercise type.
+  ================================================================ */
+  function load_exercise() {
+    stop_tick();
+
+    let ex = routine[ current ];
+
+    // header: phase tag, position counter, progress bar
+    document.getElementById( 'phase_tag' ).textContent = ex.phase;
+    document.getElementById( 'ex_name' ).textContent = ex.name;
+    document.getElementById( 'ex_count' ).textContent =
+      'exercise ' + ( current + 1 ) + ' of ' + routine.length;
+
+    let pct = ( current / routine.length ) * 100;
+    document.getElementById( 'progress_fill' ).style.width = pct + '%';
+
+    // notes block
+    document.getElementById( 'ex_notes' ).textContent = ex.notes;
+
+    // video panel: real embed if we have an id, placeholder if not
+    let frame = document.getElementById( 'video_frame' );
+    if ( ex.video === '' ) {
+      frame.innerHTML =
+        '<div class="video_placeholder">' +
+          '<div class="ring">\u3007</div>' +
+          '<span>clip coming soon</span>' +
+        '</div>';
+    } else {
+      // loop a single clip by handing the player a one-item playlist
+      // pointed back at itself — youtube needs that trick to repeat.
+      let src = 'https://www.youtube.com/embed/' + ex.video +
+                '?rel=0&modestbranding=1&loop=1&playlist=' + ex.video;
+      frame.innerHTML = '<iframe src="' + src +
+        '" allow="autoplay; encrypted-media" allowfullscreen></iframe>';
+    }
+
+    // metric + controls branch on type
+    if ( ex.type === 'timed' ) {
+      load_timed( ex );
+    } else {
+      load_reps( ex );
+    }
+  }
+
+  /* ----------------------------------------------------------------
+     timed exercise setup: show the clock, seed it with the default,
+     and build [ pause-disabled ] start + skip controls. the clock
+     does not run until 'start' is tapped.
+  ---------------------------------------------------------------- */
+  function load_timed( ex ) {
+    document.getElementById( 'timed_view' ).style.display = 'block';
+    document.getElementById( 'reps_view' ).style.display = 'none';
+
+    work_seconds = ex.default;
+    render_clock();
+
+    document.getElementById( 'timer_value' ).classList.remove( 'running' );
+    set_step_state( true );
+
+    build_controls( [
+      { label: 'Start', cls: 'ctrl_fill', fn: 'begin_timer()' },
+      { label: 'Skip',  cls: 'ctrl_ghost', fn: 'next_exercise()' }
+    ] );
+  }
+
+  /* ----------------------------------------------------------------
+     reps exercise setup: show the rep target with its unit label and
+     build done + skip controls. no chime, no clock — you advance by
+     tapping done when the set is finished.
+  ---------------------------------------------------------------- */
+  function load_reps( ex ) {
+    document.getElementById( 'timed_view' ).style.display = 'none';
+    document.getElementById( 'reps_view' ).style.display = 'block';
+
+    work_reps = ex.default;
+    document.getElementById( 'rep_value' ).textContent = work_reps;
+    document.getElementById( 'rep_label' ).textContent = ex.label;
+
+    build_controls( [
+      { label: 'Done', cls: 'ctrl_fill', fn: 'next_exercise()' },
+      { label: 'Skip', cls: 'ctrl_ghost', fn: 'next_exercise()' }
+    ] );
+  }
+
+  /* ================================================================
+     control-bar builder. takes a small list of button specs and
+     paints them into the footer. keeping this data-driven means the
+     start/pause/resume swap is just a re-paint, not dom surgery.
+  ================================================================ */
+  function build_controls( specs ) {
+    let html = '';
+    let i = 0;
+    for ( i = 0; i < specs.length; i++ ) {
+      let s = specs[ i ];
+      html += '<button class="ctrl ' + s.cls + '" onclick="' + s.fn + '">' +
+              s.label + '</button>';
+    }
+    document.getElementById( 'controls' ).innerHTML = html;
+  }
+
+  /* ================================================================
+     the countdown clock itself.
+
+     begin_timer  engages the clutch — starts a 1 hz interval, swaps
+                  the controls to pause, locks the steppers, sounds
+                  the start chime.
+     pause_timer  disengages, restores start/resume.
+     each tick    decrements, re-renders; at zero it chimes and
+                  auto-advances to the next exercise.
+  ================================================================ */
+  function begin_timer() {
+    chime();                                   // bell at start of work
+    document.getElementById( 'timer_value' ).classList.add( 'running' );
+    set_step_state( false );                   // lock adjustment while running
+
+    build_controls( [
+      { label: 'Pause', cls: 'ctrl_fill', fn: 'pause_timer()' },
+      { label: 'Skip',  cls: 'ctrl_ghost', fn: 'next_exercise()' }
+    ] );
+
+    tick = setInterval( on_tick , 1000 );
+  }
+
+  function pause_timer() {
+    stop_tick();
+    document.getElementById( 'timer_value' ).classList.remove( 'running' );
+    set_step_state( true );
+
+    build_controls( [
+      { label: 'Resume', cls: 'ctrl_fill', fn: 'begin_timer_resume()' },
+      { label: 'Skip',   cls: 'ctrl_ghost', fn: 'next_exercise()' }
+    ] );
+  }
+
+  // resume differs from begin only in that it must not re-sound the
+  // start chime — you're continuing the same set, not starting fresh.
+  function begin_timer_resume() {
+    document.getElementById( 'timer_value' ).classList.add( 'running' );
+    set_step_state( false );
+
+    build_controls( [
+      { label: 'Pause', cls: 'ctrl_fill', fn: 'pause_timer()' },
+      { label: 'Skip',  cls: 'ctrl_ghost', fn: 'next_exercise()' }
+    ] );
+
+    tick = setInterval( on_tick , 1000 );
+  }
+
+  function on_tick() {
+    work_seconds = work_seconds - 1;
+    render_clock();
+
+    if ( work_seconds <= 0 ) {
+      stop_tick();
+      chime();                                 // bell at end of work
+      next_exercise();
+    }
+  }
+
+  function stop_tick() {
+    if ( tick !== null ) {
+      clearInterval( tick );
+      tick = null;
+    }
+  }
+
+  /* ================================================================
+     advance. moves to the next index, or finishes the routine if we
+     just completed the last exercise.
+  ================================================================ */
+  function next_exercise() {
+    stop_tick();
+    current = current + 1;
+
+    if ( current >= routine.length ) {
+      finish_routine();
+    } else {
+      load_exercise();
+    }
+  }
+
+  /* ================================================================
+     adjustments + rendering helpers
+  ================================================================ */
+
+  // clamp the countdown between 30 and 90 sec, in 15 sec steps.
+  function adjust_time( delta ) {
+    work_seconds = work_seconds + delta;
+
+    if ( work_seconds < 30 ) {
+      work_seconds = 30;
+    }
+    if ( work_seconds > 90 ) {
+      work_seconds = 90;
+    }
+
+    render_clock();
+    set_step_state( true );
+  }
+
+  // reps clamp at a floor of 1, no hard ceiling.
+  function adjust_reps( delta ) {
+    work_reps = work_reps + delta;
+
+    if ( work_reps < 1 ) {
+      work_reps = 1;
+    }
+
+    document.getElementById( 'rep_value' ).textContent = work_reps;
+  }
+
+  // paint the clock as m:ss with a zero-padded seconds field.
+  function render_clock() {
+    let mins = Math.floor( work_seconds / 60 );
+    let secs = work_seconds % 60;
+
+    let secs_str = '' + secs;
+    if ( secs < 10 ) {
+      secs_str = '0' + secs;
+    }
+
+    document.getElementById( 'timer_value' ).textContent = mins + ':' + secs_str;
+  }
+
+  // enable/disable the time steppers together. they grey out while
+  // the clock is running so you can't fiddle mid-set.
+  function set_step_state( enabled ) {
+    let minus = document.getElementById( 'time_minus' );
+    let plus = document.getElementById( 'time_plus' );
+
+    if ( enabled ) {
+      minus.disabled = false;
+      plus.disabled = false;
+    } else {
+      minus.disabled = true;
+      plus.disabled = true;
+    }
+  }
+</script>
+</body>
+</html>
