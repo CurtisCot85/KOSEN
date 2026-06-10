@@ -505,12 +505,12 @@
     <div class="routine_card">
       <div class="kicker">Today's session</div>
       <h2>Primary Routine</h2>
-      <div class="meta">25–30 min · full session<br>mobility · bottom · top · neck · cool down</div>
+      <div class="meta">40–45 min · full session<br>mobility · bottom · top · neck · cool down</div>
       <div class="phase_pills">
-        <span class="pill">8 mobility</span>
-        <span class="pill">8 bottom</span>
-        <span class="pill">10 top</span>
-        <span class="pill">2 neck</span>
+        <span class="pill">10 mobility</span>
+        <span class="pill">12 bottom</span>
+        <span class="pill">9 top</span>
+        <span class="pill">3 neck</span>
         <span class="pill">3 cool down</span>
       </div>
     </div>
@@ -532,7 +532,7 @@
     <div class="ex_name" id="ex_name">—</div>
     <div class="ex_nav">
       <button class="nav_btn" id="nav_back" onclick="prev_exercise()" aria-label="previous exercise">&#8592;</button>
-      <div class="ex_count" id="ex_count">exercise 1 of 30</div>
+      <div class="ex_count" id="ex_count">exercise 1 of 37</div>
       <button class="nav_btn" id="nav_fwd" onclick="next_exercise()" aria-label="next exercise">&#8594;</button>
     </div>
 
@@ -600,45 +600,71 @@
   let routine = [
 
     // ---- phase 1: mobility warmup ----
-    { phase: 'mobility', name: 'Neck circles & rotations', type: 'reps',  default: 10, label: 'circles each way', notes: 'chin to chest, ear to shoulder each side, look over shoulder each side. 5 sec holds.', video: '', start: 0, end: 0 },
-    { phase: 'mobility', name: 'Standing cat-cow',           type: 'reps',  default: 10, label: 'cycles',           notes: 'hands on knees, round and arch spine standing. slow and controlled.',                video: 'hMt4b2qL-e8', start: 31, end: 45 },
-    { phase: 'mobility', name: 'Floor angels',             type: 'reps',  default: 10, label: 'reps',             notes: 'arms in goal post, maintain mat contact through full range.',                         video: 'chh8hQxAPAs', start: 42, end: 58 },
-    { phase: 'mobility', name: 'Kettlebell halo',          type: 'reps',  default: 5,  label: 'circles each way', notes: 'light bell, held by horns at chest level.',                                          video: 'JWUpKNoYOjU', start: 0, end: 11 },
-    { phase: 'mobility', name: 'Thread the needle',        type: 'reps',  default: 5,  label: 'each side',        notes: 'from hands and toes, reach arm under and through.',                                  video: 'rlac1t_QQJM', start: 0, end: 14 },
-    { phase: 'mobility', name: 'Kettlebell arm bar',       type: 'timed', default: 30, label: 'each side',        notes: 'light bell, roll onto side keeping bell at ceiling.',                                 video: 'IAByZREjXp8', start: 0, end: 15 },
-    { phase: 'mobility', name: 'Sleeper stretch',          type: 'timed', default: 30, label: 'each side',        notes: 'lie on side, gently push bottom forearm toward mat.',                                 video: 'HU6bdtdDess', start: 0, end: 17 },
-    { phase: 'mobility', name: 'Lying spinal twist',       type: 'timed', default: 30, label: 'each side',        notes: 'knees bent, drop to side, shoulders stay flat.',                                     video: 'mNdJti7ZwKI', start: 10, end: 22 },
+    // neck stretches are split into one plane per step so each gets
+    // its own screen and hold cue. full neck circles are dropped —
+    // single-plane work is safer and easier to hold properly.
+    { phase: 'mobility', name: 'Neck flexion & extension', type: 'reps',  default: 5,  label: 'each direction',   notes: 'chin to chest, hold 5 sec. then look up gently, hold 5 sec. slow and controlled — no bouncing, no forcing range.',                                                                                  video: '', start: 0, end: 0 },
+    { phase: 'mobility', name: 'Lateral neck flexion',     type: 'reps',  default: 5,  label: 'each side',        notes: 'drop one ear toward the shoulder, hold 5 sec. let the head fall — don\u2019t lift the shoulder to meet it. shoulders relaxed and level.',                                                              video: '', start: 0, end: 0 },
+    { phase: 'mobility', name: 'Neck rotations',           type: 'reps',  default: 5,  label: 'each side',        notes: 'look over one shoulder as far as comfortable, hold 5 sec. chin stays level — rotate, don\u2019t tilt.',                                                                                                video: '', start: 0, end: 0 },
+    { phase: 'mobility', name: 'Standing cat-cow',         type: 'reps',  default: 10, label: 'cycles',           notes: 'hands on knees, round and arch spine standing. slow and controlled.',                                                                                                                                 video: 'hMt4b2qL-e8', start: 31, end: 45 },
+    { phase: 'mobility', name: 'Floor angels',             type: 'reps',  default: 10, label: 'reps',             notes: 'arms in goal post, maintain mat contact through full range.',                                                                                                                                         video: 'chh8hQxAPAs', start: 42, end: 58 },
+    { phase: 'mobility', name: 'Kettlebell halo',          type: 'reps',  default: 5,  label: 'circles each way', notes: 'light bell, held by horns at chest level.',                                                                                                                                                           video: 'JWUpKNoYOjU', start: 0, end: 11 },
+    { phase: 'mobility', name: 'Thread the needle',        type: 'reps',  default: 5,  label: 'each side',        notes: 'from hands and toes, reach arm under and through.',                                                                                                                                                   video: 'rlac1t_QQJM', start: 0, end: 14 },
+    { phase: 'mobility', name: 'Kettlebell arm bar',       type: 'timed', default: 30, label: 'each side',        notes: 'light bell, roll onto side keeping bell at ceiling.',                                                                                                                                                 video: 'IAByZREjXp8', start: 0, end: 15 },
+    { phase: 'mobility', name: 'Sleeper stretch',          type: 'timed', default: 30, label: 'each side',        notes: 'lie on side, gently push bottom forearm toward mat.',                                                                                                                                                 video: 'HU6bdtdDess', start: 0, end: 17 },
+    { phase: 'mobility', name: 'Lying spinal twist',       type: 'timed', default: 30, label: 'each side',        notes: 'knees bent, drop to side, shoulders stay flat.',                                                                                                                                                      video: 'mNdJti7ZwKI', start: 10, end: 22 },
 
     // ---- phase 2: bottom position ----
-    { phase: 'bottom', name: 'Shrimping in place',    type: 'reps',  default: 10, label: 'each direction',      notes: 'shrimp one way, immediately shrimp back.',                        video: '', start: 0, end: 0 },
-    { phase: 'bottom', name: 'Bridging',              type: 'reps',  default: 20, label: 'reps',                notes: 'hold 3–5 sec at top.',                                            video: '', start: 0, end: 0 },
-    { phase: 'bottom', name: 'Single-leg bridge',     type: 'reps',  default: 10, label: 'each leg',            notes: 'one foot planted, other leg extended.',                            video: '', start: 0, end: 0 },
-    { phase: 'bottom', name: 'Hip escape to guard',   type: 'reps',  default: 10, label: 'each side',           notes: 'bridge, shrimp out, recover guard, reset.',                        video: '', start: 0, end: 0 },
-    { phase: 'bottom', name: 'Leg circles & bicycle', type: 'timed', default: 30, label: 'circles, then bicycle', notes: 'on back, legs in air. 30 sec circles, 30 sec bicycle.',         video: '', start: 0, end: 0 },
-    { phase: 'bottom', name: 'Sidewinders',           type: 'timed', default: 30, label: 'seconds',             notes: 'counter-rotating shoulders and hips.',                             video: '', start: 0, end: 0 },
-    { phase: 'bottom', name: 'Granby rolls',          type: 'reps',  default: 5,  label: 'each direction',      notes: 'seated, roll over shoulder, back to seated.',                      video: '', start: 0, end: 0 },
-    { phase: 'bottom', name: 'Technical standup',     type: 'reps',  default: 5,  label: 'each side',           notes: 'post hand, kick leg through, stand.',                              video: '', start: 0, end: 0 },
+    // sequencing: movement components first (shrimp, bridge), then
+    // the compound escapes while fresh — they chain those components
+    // and need the most quality. turtle pair next (sit-out forward,
+    // granby backward), then seated guard, then the loaded get-up
+    // before fatigue work. endurance block last, and the phase exits
+    // standing via the technical standup.
+    { phase: 'bottom', name: 'Shrimping in place',          type: 'reps',  default: 10, label: 'each direction',        notes: 'start on your side, not flat. drive the bottom foot into the mat to push the hips away while the top knee drives toward the chest. elbow and knee connect at the end of each rep. immediately shrimp back. stay on your side throughout.',                                video: '', start: 0, end: 0 },
+    { phase: 'bottom', name: 'Directional bridge',          type: 'reps',  default: 5,  label: 'each side',             notes: 'start flat. explosive bridge onto one shoulder — lengthen the body and thrust the hips toward the imaginary top player. body almost entirely on its side at the top. this bridge creates escape space — it is not a glute hold.',                                          video: '', start: 0, end: 0 },
+    { phase: 'bottom', name: 'Solo mount elbow escape',     type: 'reps',  default: 5,  label: 'each side',             notes: 'start in mount survival posture: on your side, hands framing, bottom leg flat. bridge explosively onto the top shoulder, then immediately hip escape into the space, driving knee to elbow. one fluid action — the bridge makes the gap, the hip escape fills it.',         video: '', start: 0, end: 0 },
+    { phase: 'bottom', name: 'Side control guard recovery', type: 'reps',  default: 5,  label: 'each side',             notes: 'start in side control survival posture: inside leg elevated, bottom arm flat to the body, top arm as a cross-face block. long bridge onto the far shoulder, hips thrust into the imaginary opponent, then hip escape and drive the inside knee into the gap. swing the head away to finish the angle.', video: '', start: 0, end: 0 },
+    { phase: 'bottom', name: 'Sit-outs',                    type: 'reps',  default: 5,  label: 'each side',             notes: 'from all-fours, post one hand, kick the opposite leg through while rotating the hips. finish seated with the posted arm behind you. return to all-fours and switch sides. this is the primary turtle escape — it clears your hips out from under the top player.',          video: '', start: 0, end: 0 },
+    { phase: 'bottom', name: 'Granby rolls',                type: 'reps',  default: 5,  label: 'each direction',        notes: 'seated, roll backward over one shoulder, keeping that shoulder on the mat as you invert. drive the rotation with the legs. return to a seated guard, not flat. chin tucked, arms tight throughout.',                                                                       video: '', start: 0, end: 0 },
+    { phase: 'bottom', name: 'Seated guard scooting',       type: 'timed', default: 30, label: 'seconds',               notes: 'sit on your sit bones, one hand posted, other hand up as a frame. scoot forward, backward, and to each side using hip movement. never go flat — this is the seated guard that anchors the open guard game.',                                                               video: '', start: 0, end: 0 },
+    { phase: 'bottom', name: 'Turkish get-up',              type: 'reps',  default: 3,  label: 'each side',             notes: 'light bell. slow and deliberate — pause at every position: elbow, hand, high bridge, leg sweep, half-kneel, stand. reverse the same path down. every checkpoint is a grappling position.',                                                                                  video: '', start: 0, end: 0 },
+    { phase: 'bottom', name: 'Leg circles & bicycle',       type: 'timed', default: 60, label: 'circles, then bicycle', notes: 'on back, legs in air. 30 sec circles, 30 sec bicycle.',                                                                                                                                                                                                                  video: '', start: 0, end: 0 },
+    { phase: 'bottom', name: 'Sidewinders',                 type: 'timed', default: 30, label: 'seconds',               notes: 'counter-rotating shoulders and hips.',                                                                                                                                                                                                                                   video: '', start: 0, end: 0 },
+    { phase: 'bottom', name: 'Single-leg bridge',           type: 'reps',  default: 10, label: 'each leg',              notes: 'one foot planted, other leg extended. hold 3–5 sec at the top. posterior chain endurance — the base that keeps the explosive bridges available deep into a round.',                                                                                                   video: '', start: 0, end: 0 },
+    { phase: 'bottom', name: 'Technical standup',           type: 'reps',  default: 5,  label: 'each side',             notes: 'post hand, kick leg through, stand.',                                                                                                                                                                                                                                    video: '', start: 0, end: 0 },
 
     // ---- phase 3: top position / dynamic strength ----
-    { phase: 'top', name: 'Standard plank',           type: 'timed', default: 60, label: 'seconds',        notes: 'toes and forearms, hips level.',                                       video: '', start: 0, end: 0 },
-    { phase: 'top', name: 'Hip switches from plank',  type: 'reps',  default: 10, label: 'each direction', notes: 'rotate hips side to side driving angled pressure.',                    video: '', start: 0, end: 0 },
-    { phase: 'top', name: 'Plank-to-side-plank',      type: 'reps',  default: 10, label: 'full rotations', notes: 'continuous and fluid, don\u2019t pause at each position.',             video: '', start: 0, end: 0 },
-    { phase: 'top', name: 'Toe-walking plank',        type: 'reps',  default: 10, label: 'steps each way', notes: 'walk feet in circle around planted hands.',                            video: '', start: 0, end: 0 },
-    { phase: 'top', name: 'Plank-to-sprawl',          type: 'reps',  default: 10, label: 'reps',           notes: 'explosive hip drive forward and down, return to plank.',               video: '', start: 0, end: 0 },
-    { phase: 'top', name: 'Bear crawl kick-through',          type: 'reps',  default: 5,  label: 'each side',  notes: 'bear crawl position, kick one leg through with rotation, return. explosive.',         video: '', start: 0, end: 0 },
-    { phase: 'top', name: 'Bear crawl to crab walk toe tap', type: 'reps',  default: 10, label: 'reps',       notes: 'bear crawl forward, transition to crab walk, reach opposite hand to toe, transition back.', video: '', start: 0, end: 0 },
-    { phase: 'top', name: 'Crab walk',                type: 'timed', default: 30, label: 'seconds',        notes: 'face up, hands and feet, hips off mat.',                               video: '', start: 0, end: 0 },
-    { phase: 'top', name: 'Sprawl-to-side-drive',     type: 'reps',  default: 5,  label: 'each side',      notes: 'sprawl, drive hips laterally toward side control.',                    video: '', start: 0, end: 0 },
-    { phase: 'top', name: 'Alligator walk',           type: 'timed', default: 30, label: 'seconds',        notes: 'pull with forearms, push with toes, chest low.',                       video: '', start: 0, end: 0 },
+    // standard plank and standalone crab walk are cut. plank variants
+    // are interleaved with non-plank work so the anterior core gets
+    // micro-recovery between bouts. the swing sits early — power work
+    // belongs at the front of the phase, while fresh. alligator walk
+    // stays last as the grinder.
+    { phase: 'top', name: 'Hip switches from plank',  type: 'reps',  default: 10, label: 'each direction', notes: 'rotate hips side to side driving angled pressure.',                                                                                                                                                          video: '', start: 0, end: 0 },
+    { phase: 'top', name: 'Kettlebell swing',         type: 'timed', default: 30, label: 'seconds',        notes: 'two-hand swing. hinge at the hips, not a squat. the bell floats to chest height from hip snap alone — arms are cables, not levers. this hip extension is the same engine that powers the bridge from the bottom.', video: '', start: 0, end: 0 },
+    { phase: 'top', name: 'Plank-to-side-plank',      type: 'reps',  default: 10, label: 'full rotations', notes: 'continuous and fluid, don\u2019t pause at each position.',                                                                                                                                                    video: '', start: 0, end: 0 },
+    { phase: 'top', name: 'Bear crawl kick-through',  type: 'reps',  default: 5,  label: 'each side',      notes: 'bear crawl position, kick one leg through with rotation, return. explosive. this is the conditioning version of the sit-out from phase 2.',                                                                  video: '', start: 0, end: 0 },
+    { phase: 'top', name: 'Toe-walking plank',        type: 'reps',  default: 10, label: 'steps each way', notes: 'walk feet in circle around planted hands.',                                                                                                                                                                   video: '', start: 0, end: 0 },
+    { phase: 'top', name: 'Bear-to-crab transitions', type: 'timed', default: 30, label: 'seconds',        notes: 'from bear crawl, rotate the hips through to crab, then rotate back. continuous, alternating the direction of rotation. hips stay off the mat the whole time.',                                               video: '', start: 0, end: 0 },
+    { phase: 'top', name: 'Plank-to-sprawl',          type: 'reps',  default: 10, label: 'reps',           notes: 'explosive hip drive forward and down, return to plank.',                                                                                                                                                      video: '', start: 0, end: 0 },
+    { phase: 'top', name: 'Sprawl-to-side-drive',     type: 'reps',  default: 5,  label: 'each side',      notes: 'sprawl, drive hips laterally toward side control.',                                                                                                                                                           video: '', start: 0, end: 0 },
+    { phase: 'top', name: 'Alligator walk',           type: 'timed', default: 30, label: 'seconds',        notes: 'pull with forearms, push with toes, chest low.',                                                                                                                                                              video: '', start: 0, end: 0 },
 
     // ---- phase 4: neck strength ----
-    { phase: 'neck', name: 'Prone neck extensions',   type: 'reps',  default: 10, label: 'reps',    notes: 'face down, hands behind head, lift head and chest. 3–5 sec holds.', video: '', start: 0, end: 0 },
-    { phase: 'neck', name: 'Neck bridges',            type: 'timed', default: 30, label: 'seconds', notes: 'cautious. small range of motion, light bodyweight only.',            video: '', start: 0, end: 0 },
+    // prone extensions warm the neck without spinal load, then the
+    // back bridge (familiar — you have been bridging all session),
+    // then the front bridge. both bridges start small range with
+    // hands posted; progress over weeks, not sessions.
+    { phase: 'neck', name: 'Prone neck extensions',  type: 'reps',  default: 10, label: 'reps',    notes: 'face down, hands behind head, lift head and chest. 3–5 sec holds. this is the warm-up for the bridges — cervical strength without spinal load.',                                                                video: '', start: 0, end: 0 },
+    { phase: 'neck', name: 'Backward neck bridge',   type: 'timed', default: 30, label: 'seconds', notes: 'bridge onto the crown of the head, face up, hands on the mat beside the head for support. small range to start — build the arch over weeks, not sessions. this is the extension that powers bridging under a mounted opponent.', video: '', start: 0, end: 0 },
+    { phase: 'neck', name: 'Front neck bridge',      type: 'timed', default: 30, label: 'seconds', notes: 'forehead on the mat, hands posted for support. rock gently forward and back in a small range. this is the chin-tuck strength that protects the neck when your back is taken.',                                       video: '', start: 0, end: 0 },
 
     // ---- phase 5: cool down ----
-    { phase: 'cool down', name: 'Child\u2019s pose on toes', type: 'timed', default: 30, label: 'seconds',  notes: 'sit hips back, arms extended, on toes not shins.', video: '', start: 0, end: 0 },
-    { phase: 'cool down', name: 'Lying spinal twist',        type: 'timed', default: 30, label: 'each side', notes: 'repeat from warmup.',                               video: '', start: 0, end: 0 },
-    { phase: 'cool down', name: 'Dead hang',                 type: 'timed', default: 30, label: 'seconds',  notes: 'if pull-up bar available. skip if not.',             video: '', start: 0, end: 0 }
+    // dead hang follows the neck bridges deliberately: the bridges
+    // compress the spine, the hang decompresses it.
+    { phase: 'cool down', name: 'Child\u2019s pose on toes', type: 'timed', default: 30, label: 'seconds',   notes: 'sit hips back, arms extended, on toes not shins.',                                                                                                                                                          video: '', start: 0, end: 0 },
+    { phase: 'cool down', name: 'Lying spinal twist',        type: 'timed', default: 30, label: 'each side', notes: 'repeat from warmup.',                                                                                                                                                                                       video: '', start: 0, end: 0 },
+    { phase: 'cool down', name: 'Dead hang',                 type: 'timed', default: 45, label: 'seconds',   notes: 'bend the knees if the bar is low — grip demand is the same. relax the shoulders and let the spine decompress after the bridges. grip is the first thing to fail in live rounds — this builds the reserve. drape a towel over the bar for gi-grip work.', video: '', start: 0, end: 0 }
   ];
 
   /* ================================================================
